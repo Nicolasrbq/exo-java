@@ -1,4 +1,4 @@
-package org.example.model;
+package com.formation.model;
 
 public class SimpleTask extends AbstractTask {
     public Priority priority;

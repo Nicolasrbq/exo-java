@@ -1,14 +1,13 @@
-package org.example.repository;
+package com.formation.repository;
 
-import org.example.model.AbstractTask;
-import org.example.model.TaskId;
-import org.example.model.TaskRepository;
+import com.formation.model.AbstractTask;
+import com.formation.model.TaskId;
+import com.formation.model.TaskRepository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class InMemoryTaskRepository implements TaskRepository {
 

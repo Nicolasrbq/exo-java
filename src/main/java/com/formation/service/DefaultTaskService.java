@@ -1,5 +1,6 @@
-package org.example.service;
+package com.formation.service;
 
+import com.formation.model.*;
 import org.example.model.*;
 
 import java.util.List;
