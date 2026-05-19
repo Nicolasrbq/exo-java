@@ -18,12 +18,22 @@ import java.util.stream.Collectors;
 
 public class DefaultTaskService implements TaskService {
 
+	/**
+	 * problème d'encapsulation : le repository est public, n'importe qui peut le modifier. Il faut le rendre private
+	 */
     public TaskRepository taskRepository;
 
+	/**
+	 * Inversion de controle : la classe ne s'occupe pas de creer son repository, elle le recoit en parametre
+	 */
     public DefaultTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
+    /**
+     * Les constantes sont généralement déclarées en premier dans la classe, avant les champs d'instance
+     *  et les constructeurs.
+     */
     private static final Logger log = LoggerFactory.getLogger(DefaultTaskService.class);
 
     @Override
@@ -39,6 +49,7 @@ public class DefaultTaskService implements TaskService {
         log.info("Creation d'une nouvelle tache : {}", task.title);
 
         this.taskRepository.save(task);
+        // il faut retourner le DTO de la tache créée, pas null : return new TaskMapper().toDto(task);
         return null;
     }
 

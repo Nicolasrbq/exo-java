@@ -108,7 +108,11 @@ class DefaultTaskServiceTest {
 
         List<AbstractTask> foundTask = service.getTasksByPriority(Priority.HIGH);
 
-        assertEquals(expectedTitle, foundTask.getFirst().getTitle());
-        assertEquals(3, foundTask.getFirst().getId().id());
+        /**
+         *  utilise get(0) pour accéder à la première tâche de la liste, au lieu de getFirst() qui n'existe pas 
+         *  : foundTask.get(0)
+         */
+        assertEquals(expectedTitle, foundTask.get(0).getTitle());
+        assertEquals(3, foundTask.get(0).getId().id());
     }
 }
