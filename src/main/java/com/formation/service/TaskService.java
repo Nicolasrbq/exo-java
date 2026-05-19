@@ -1,12 +1,18 @@
-package com.formation.model;
+package com.formation.service;
+
+import com.formation.dto.TaskDTO;
+import com.formation.model.AbstractTask;
+import com.formation.model.Priority;
+import com.formation.model.TaskId;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface TaskService {
-    void addTask(AbstractTask task);
+    TaskDTO addTask(AbstractTask task);
     void completeTask(TaskId id);
+    void deleteTask(TaskId id);
     List<AbstractTask> getActiveTasks();
     List<AbstractTask> getTasksByPriority(Priority priority);
     Optional<AbstractTask> findTask(TaskId id);

@@ -1,0 +1,40 @@
+package com.formation.controller;
+
+import com.formation.dto.TaskDTO;
+import com.formation.dto.TaskMapper;
+import com.formation.model.AbstractTask;
+import com.formation.model.TaskId;
+import com.formation.service.TaskService;
+
+import java.util.List;
+import java.util.Optional;
+
+public class TaskController {
+    private final TaskService taskService;
+    private final TaskMapper taskMapper;
+
+    public TaskController(TaskService taskService, TaskMapper taskMapper) {
+        this.taskService = taskService;
+        this.taskMapper = taskMapper;
+    }
+
+    public List<TaskDTO> getAllTasks() {
+        return taskService.getActiveTasks().stream().map(taskMapper::toDto).toList();
+    }
+
+    public Optional<AbstractTask> getTaskById(int id) { 
+        return taskService.findTask(new TaskId(id));
+    }
+
+    public TaskDTO createTask(TaskDTO dto) {
+        return taskService.addTask(taskMapper.fromDto(dto));
+    }
+
+    public void completeTask(int id) {
+        taskService.completeTask(new TaskId(id));
+    }
+    
+    public void deleteTask(int id) {
+        taskService.deleteTask(new TaskId(id));
+    }
+}

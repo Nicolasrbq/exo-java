@@ -1,4 +1,7 @@
-package com.formation.model;
+package com.formation.repository;
+
+import com.formation.model.AbstractTask;
+import com.formation.model.TaskId;
 
 import java.util.List;
 import java.util.Optional;

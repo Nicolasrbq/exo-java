@@ -2,7 +2,6 @@ package com.formation.repository;
 
 import com.formation.model.AbstractTask;
 import com.formation.model.TaskId;
-import com.formation.model.TaskRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ public class InMemoryTaskRepository implements TaskRepository {
 
     @Override
     public Optional<AbstractTask> findById(TaskId id) {
-        return Optional.empty();
+        return Optional.ofNullable(saved.get(id));
     }
 
     @Override

@@ -19,6 +19,10 @@ public abstract class AbstractTask {
         return id;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public LocalDate getCreateAt() {
         return createAt;
     }
