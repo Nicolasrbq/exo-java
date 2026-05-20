@@ -18,16 +18,27 @@ public class TaskController {
         this.taskMapper = taskMapper;
     }
 
-    public List<TaskDTO> getAllTasks() {
+    public List<TaskDTO> getAllActiveTasks() {
         return taskService.getActiveTasks().stream().map(taskMapper::toDto).toList();
     }
 
-    public Optional<AbstractTask> getTaskById(int id) { 
+    /**
+     * Ne jamais retourner une entité du domaine vers l'extérieur, toujours retourner un DTO
+     * on ne retourne pas un optional vers l'extérieur, on à géré l'absence de tache dans le service avec une exception TaskNotFoundException, 
+     * donc ici on peut retourner directement un TaskDTO, 
+     * @param id
+     * @return
+     */
+    public TaskDTO getTaskById(int id) { 
         return taskService.findTask(new TaskId(id));
     }
 
     public TaskDTO createTask(TaskDTO dto) {
         return taskService.addTask(taskMapper.fromDto(dto));
+    }
+    
+    public TaskDTO updateTask(TaskDTO dto, int id) {
+        return taskService.updateTask(taskMapper.fromDto(dto), id);
     }
 
     public void completeTask(int id) {

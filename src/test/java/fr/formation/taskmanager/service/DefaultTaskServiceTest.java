@@ -33,8 +33,8 @@ class DefaultTaskServiceTest {
         service.addTask(task);
 // Then — assertions
         var found = service.findTask(new TaskId(1));
-        assertTrue(found.isPresent());
-        assertEquals("Rédiger les tests", found.get().getTitle());
+        assertTrue(found!= null);
+        assertEquals("Rédiger les tests", found.title());
     }
 
     @Test
@@ -61,7 +61,7 @@ class DefaultTaskServiceTest {
         service.addTask(task);
         service.completeTask(task.getId());
 
-        assertTrue(task.done);
+        assertTrue(task.isDone());
     }
 
     @Test

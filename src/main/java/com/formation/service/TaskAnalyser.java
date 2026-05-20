@@ -17,14 +17,14 @@ public class TaskAnalyser {
     	 *  l'api stream de compter directement les éléments qui correspondent à un prédicat
     	 *  tu peux retourner directement tasks.stream().filter(task -> task.done).count();
     	 */
-        List<AbstractTask> doneTasks = tasks.stream().filter(task -> task.done).toList();
+        List<AbstractTask> doneTasks = tasks.stream().filter(task -> task.isDone()).toList();
         return doneTasks.size();
     }
 
     //GOOD
     public static List<String> getTitleUpperCase(List<AbstractTask> tasks) {
         return tasks.stream()
-                .map(task -> task.title)
+                .map(task -> task.getTitle())
                 .sorted()
                 .map(String::toUpperCase)
                 .toList();
@@ -33,7 +33,7 @@ public class TaskAnalyser {
     //GOOD
     public static Optional<AbstractTask> findMostUrgent(List<AbstractTask> tasks) {
         Optional<AbstractTask> countTasks = tasks.stream()
-                .filter(task -> !task.done)
+                .filter(task -> !task.isDone())
                 .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.priority == Priority.HIGH)
                 .max(Comparator.comparing(AbstractTask::getCreateAt));
 

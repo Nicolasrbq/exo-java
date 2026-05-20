@@ -11,10 +11,11 @@ import java.util.Optional;
 
 public interface TaskService {
     TaskDTO addTask(AbstractTask task);
+    TaskDTO updateTask(AbstractTask task, int id);
     void completeTask(TaskId id);
     void deleteTask(TaskId id);
     List<AbstractTask> getActiveTasks();
     List<AbstractTask> getTasksByPriority(Priority priority);
-    Optional<AbstractTask> findTask(TaskId id);
+    TaskDTO findTask(TaskId id);
     Map<Boolean, List<AbstractTask>> partitionByStatus();
 }

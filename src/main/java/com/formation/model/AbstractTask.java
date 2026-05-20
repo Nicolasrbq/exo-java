@@ -12,17 +12,23 @@ public abstract class AbstractTask {
 	 * des méthodes d'accès (getters) et de modification (setters) pour contrôler l'accès à ces champs (tu l'a déjà fait).
 	 *  Cela permet de protéger les données et de garantir que les modifications sont effectuées de manière contrôlée.
 	 */
-    public TaskId id;
-    public String title;
-    public boolean done;
-    public LocalDate createAt;
+    protected TaskId id;
+    protected String title;
+    protected boolean done;
+    protected LocalDate createAt;
 
-    /**
+    
+    public AbstractTask() {
+        this.done = false;
+        this.createAt = LocalDate.now();
+	}
+
+	/**
      * Ce constructeur ne sera doit être visible que dans les classes fille. il faut utiliser la portabilitée protected au lieux de public.
      */
-    public AbstractTask() {
-        this.id = new TaskId(0);
-        this.title = "";
+    public AbstractTask(TaskId id, String title) {
+        this.id =id;
+        this.title = title;
         this.done = false;
         this.createAt = LocalDate.now();
     }
@@ -43,7 +49,13 @@ public abstract class AbstractTask {
     public String getTitle() {
         return title;
     }
-    /**
+    
+    
+    public void setTitle(String title) {
+		this.title = title;
+	}
+
+	/**
      * il faut aussi définir un setter pour le champ title, sinon il ne sera pas possible 
      * de modifier le titre d'une tâche après sa création.
      * @return
@@ -52,10 +64,17 @@ public abstract class AbstractTask {
     public LocalDate getCreateAt() {
         return createAt;
     }
+    
+    public void setId(TaskId id) {
+		this.id = id;
+	}
 
-    public abstract String getSummary();
+    
+	public boolean isDone() {
+		return done;
+	}
 
-    public void markAsDone() {
+	public void markAsDone() {
         this.done = true;
     }
 
@@ -83,5 +102,7 @@ public abstract class AbstractTask {
 
 		return false;
     }
+    
+    public abstract String getSummary();
 
 }

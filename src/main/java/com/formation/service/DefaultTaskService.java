@@ -1,6 +1,7 @@
 package com.formation.service;
 
 import com.formation.dto.TaskDTO;
+import com.formation.dto.TaskMapper;
 import com.formation.exception.InvalidTaskException;
 import com.formation.exception.TaskNotFoundException;
 import com.formation.model.AbstractTask;
@@ -42,15 +43,15 @@ public class DefaultTaskService implements TaskService {
             throw new InvalidTaskException("task", "Task title cannot be empty");
         }
 
-        if (task.title == null || task.title.isEmpty()) {
+        if (task.getTitle() == null || task.getTitle().isEmpty()) {
             log.warn("Tentative de creation avec titre invalide");
         }
 
-        log.info("Creation d'une nouvelle tache : {}", task.title);
+        log.info("Creation d'une nouvelle tache : {}", task.getTitle());
 
         this.taskRepository.save(task);
         // il faut retourner le DTO de la tache créée, pas null : return new TaskMapper().toDto(task);
-        return null;
+        return new TaskMapper().toDto(task);
     }
 
     @Override
@@ -72,24 +73,48 @@ public class DefaultTaskService implements TaskService {
 
     @Override
     public List<AbstractTask> getActiveTasks() {
-        return this.taskRepository.findAll().stream().filter(task -> !task.done).toList();
+       // tu as déjà filtré les tasks actives dans le repository tu n'as plus besoin de filtrer ici
+    	//return this.taskRepository.findAllActiveTask().stream().filter(task -> !task.done).toList();
+        return this.taskRepository.findAllActiveTask();
     }
 
     @Override
     public List<AbstractTask> getTasksByPriority(Priority priority) {
-        return this.taskRepository.findAll().stream()
-                .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.priority == priority)
+        return this.taskRepository.findAll().stream()                      // priority est un objet, tu ne peux pas utiliser priority == priority pour le comparer, 
+        		                                                            //tu dois utiliser equals() : task.priority.equals(priority)
+                .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.priority.equals(priority))
                 .toList();
     }
 
+    /**
+     * il faut retourner un Optional<TaskDTO> et pas un Optional<AbstractTask>, 
+     * on n'expose pas la structure interne de nos antités.
+     */
     @Override
-    public Optional<AbstractTask> findTask(TaskId id) {
-        return this.taskRepository.findById(id);
+    public TaskDTO findTask(TaskId id) {
+    	Optional<AbstractTask> task =  this.taskRepository.findById(id);
+    	if(!task.isPresent()) {
+			log.warn("Tache non trouvee : {}", id);
+			  throw new TaskNotFoundException(id.id());
+    	}
+    	return new TaskMapper().toDto(task.get());
     }
 
     @Override
     public Map<Boolean, List<AbstractTask>> partitionByStatus() {
         return this.taskRepository.findAll().stream()
-                .collect(Collectors.partitioningBy(task -> task.done));
+                .collect(Collectors.partitioningBy(AbstractTask::isDone));
     }
+
+	@Override
+	public TaskDTO updateTask(AbstractTask task, int id) {
+        Optional<AbstractTask> existedTask = this.taskRepository.findById(new TaskId(id));
+        if(!existedTask.isPresent()) {
+			log.warn("Tache non trouvee : {}", task.getId());
+			  throw new TaskNotFoundException(task.getId().id());
+			}
+			this.taskRepository.save(task);
+			log.info("Tache mise a jour : {}", task.getId());
+		return new TaskMapper().toDto(task);
+	}
 }

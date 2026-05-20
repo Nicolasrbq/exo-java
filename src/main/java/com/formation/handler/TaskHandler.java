@@ -2,6 +2,8 @@ package com.formation.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formation.controller.TaskController;
+import com.formation.dto.ErrorResponse;
+import com.formation.dto.TaskDTO;
 import com.formation.exception.InvalidTaskException;
 import com.formation.exception.TaskNotFoundException;
 import com.formation.model.AbstractTask;
@@ -12,8 +14,15 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import org.slf4j.Logger;
 
 public class TaskHandler implements HttpHandler {
+	
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(TaskHandler.class);
+	
     private final TaskController controller;
     private final ObjectMapper jackson;
     public TaskHandler(TaskController controller, ObjectMapper jackson) {
@@ -27,7 +36,7 @@ public class TaskHandler implements HttpHandler {
         try {
             // Routing : méthode + forme de l'URL
             if ("GET".equals(method) && path.equals("/tasks")) {
-                handleGetAll(exchange);
+                handleGetAllActive(exchange);
             } else if ("GET".equals(method) && path.matches("/tasks/\\d+")) {
                 int id = extractId(path);
                 handleGetById(exchange, id);
@@ -55,8 +64,25 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    private void sendError(HttpExchange exchange, int i, String routeNotFound, String s) {
-        exchange.sendResponseHeaders(i, s);
+ // Envoie une réponse JSON avec le bon code HTTP
+    private void sendJson(HttpExchange ex, int statusCode, Object body) throws IOException {
+    byte[] bytes = jackson.writeValueAsBytes(body);
+    ex.getResponseHeaders().set("Content-Type", "application/json");
+    ex.sendResponseHeaders(statusCode, bytes.length);
+    ex.getResponseBody().write(bytes);
+    ex.close();
+    }
+    // Lit le body de la requête et le désérialise
+    private <T> T readBody(HttpExchange ex, Class<T> clazz) throws IOException {
+    try (InputStream is = ex.getRequestBody()) {
+    return jackson.readValue(is, clazz);
+    } }
+    // Envoie une réponse d'erreur standardisée
+    private void sendError(HttpExchange ex, int status,
+    String code, String message) throws IOException {
+    var error = new ErrorResponse(status, code, message,
+    ex.getRequestURI().getPath());
+    sendJson(ex, status, error);
     }
 
     private void handleDelete(HttpExchange exchange, int id) throws IOException {
@@ -71,30 +97,44 @@ public class TaskHandler implements HttpHandler {
     private void handleComplete(HttpExchange exchange, int id) throws IOException {
         try {
             controller.completeTask(id);
-            exchange.sendResponseHeaders(200, 0);
+            sendJson(exchange, 200, "Tache marque comme complete");
         } catch (Exception e ) {
             exchange.sendResponseHeaders(404, 0);
         }
     }
 
-    private void handleUpdate(HttpExchange exchange, int id) {
-
+    private void handleUpdate(HttpExchange exchange, int id) throws IOException {
+    	TaskDTO dto = readBody(exchange, TaskDTO.class);
+		try {
+			TaskDTO created = controller.updateTask(dto, id);
+			sendJson(exchange, 201, created);
+		} catch (InvalidTaskException e) {
+			sendError(exchange, 400, "INVALID_TASK", e.getMessage());
+		}
     }
 
-    private void handleCreate(HttpExchange exchange) throws IOException {    }
+    private void handleCreate(HttpExchange exchange) throws IOException {  
+		TaskDTO dto = readBody(exchange, TaskDTO.class);
+		try {
+			TaskDTO created = controller.createTask(dto);
+			sendJson(exchange, 201, created);
+		} catch (InvalidTaskException e) {
+			sendError(exchange, 400, "INVALID_TASK", e.getMessage());
+		}
+    }
 
     private void handleGetById(HttpExchange exchange, int id) throws IOException {
         try {
-            controller.getTaskById(id);
-            exchange.sendResponseHeaders(200, 0);
+           TaskDTO dto =  controller.getTaskById(id);
+           sendJson(exchange, 200, dto);
         } catch(Exception e) {
-            exchange.sendResponseHeaders(404, 0);
+            sendError(exchange, 404, "TASK_NOT_FOUND", "Tache non trouvee avec id : %s".formatted(id)); // j'utilise ici .formatted() pour concaténer au lieu de null c'est une bonne pratique pour éviter les nullPointerException.
         }
     }
 
-    private void handleGetAll(HttpExchange exchange) throws IOException {
-        controller.getAllTasks();
-        exchange.sendResponseHeaders(200, 0);
+    private void handleGetAllActive(HttpExchange exchange) throws IOException {
+      List<TaskDTO> tasks =   controller.getAllActiveTasks();
+       sendJson(exchange, 200, tasks);
     }
 
     private int extractId(String path) {

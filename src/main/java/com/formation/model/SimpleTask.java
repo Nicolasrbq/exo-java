@@ -4,11 +4,18 @@ public class SimpleTask extends AbstractTask {
 	// problème d'encapsulation. utilise private au lieu du public
     public Priority priority;
 
-    /**
+    
+    
+    public SimpleTask() {
+    	super(); // super() appel de constructeur vide de la class parent
+	}
+
+	/**
      * Si tu utilise ce constructeur, tu auras
      * des task avec un title null.
      */
     public SimpleTask(Priority priority) {
+    	super();
         this.priority = priority;
     }
 
@@ -21,10 +28,9 @@ public class SimpleTask extends AbstractTask {
     	 *  this.id = id;
          *	this.title = title;
          *par 
-         *  super(id,tile);
+         *  super(id,title);
     	 */
-        this.id = id;
-        this.title = title;
+        super(id,title);
         this.priority = priority;
     }
 
