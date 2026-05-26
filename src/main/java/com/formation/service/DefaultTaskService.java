@@ -19,23 +19,23 @@ import java.util.stream.Collectors;
 
 public class DefaultTaskService implements TaskService {
 
-	/**
-	 * problème d'encapsulation : le repository est public, n'importe qui peut le modifier. Il faut le rendre private
-	 */
-    public TaskRepository taskRepository;
+    /**
+     * Les constantes sont généralement déclarées en premier dans la classe, avant les champs d'instance
+     * et les constructeurs.
+     */
+    private static final Logger log = LoggerFactory.getLogger(DefaultTaskService.class);
 
-	/**
-	 * Inversion de controle : la classe ne s'occupe pas de creer son repository, elle le recoit en parametre
-	 */
+    /**
+     * problème d'encapsulation : le repository est public, n'importe qui peut le modifier. Il faut le rendre private
+     */
+    private TaskRepository taskRepository;
+
+    /**
+     * Inversion de controle : la classe ne s'occupe pas de creer son repository, elle le recoit en parametre
+     */
     public DefaultTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
-
-    /**
-     * Les constantes sont généralement déclarées en premier dans la classe, avant les champs d'instance
-     *  et les constructeurs.
-     */
-    private static final Logger log = LoggerFactory.getLogger(DefaultTaskService.class);
 
     @Override
     public TaskDTO addTask(AbstractTask task) {
@@ -73,31 +73,31 @@ public class DefaultTaskService implements TaskService {
 
     @Override
     public List<AbstractTask> getActiveTasks() {
-       // tu as déjà filtré les tasks actives dans le repository tu n'as plus besoin de filtrer ici
-    	//return this.taskRepository.findAllActiveTask().stream().filter(task -> !task.done).toList();
+        // tu as déjà filtré les tasks actives dans le repository tu n'as plus besoin de filtrer ici
+        //return this.taskRepository.findAllActiveTask().stream().filter(task -> !task.done).toList();
         return this.taskRepository.findAllActiveTask();
     }
 
     @Override
     public List<AbstractTask> getTasksByPriority(Priority priority) {
         return this.taskRepository.findAll().stream()                      // priority est un objet, tu ne peux pas utiliser priority == priority pour le comparer, 
-        		                                                            //tu dois utiliser equals() : task.priority.equals(priority)
-                .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.priority.equals(priority))
+                //tu dois utiliser equals() : task.priority.equals(priority)
+                .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.getPriority().equals(priority))
                 .toList();
     }
 
     /**
-     * il faut retourner un Optional<TaskDTO> et pas un Optional<AbstractTask>, 
+     * il faut retourner un Optional<TaskDTO> et pas un Optional<AbstractTask>,
      * on n'expose pas la structure interne de nos antités.
      */
     @Override
     public TaskDTO findTask(TaskId id) {
-    	Optional<AbstractTask> task =  this.taskRepository.findById(id);
-    	if(!task.isPresent()) {
-			log.warn("Tache non trouvee : {}", id);
-			  throw new TaskNotFoundException(id.id());
-    	}
-    	return new TaskMapper().toDto(task.get());
+        Optional<AbstractTask> task = this.taskRepository.findById(id);
+        if (!task.isPresent()) {
+            log.warn("Tache non trouvee : {}", id);
+            throw new TaskNotFoundException(id.id());
+        }
+        return new TaskMapper().toDto(task.get());
     }
 
     @Override
@@ -106,15 +106,15 @@ public class DefaultTaskService implements TaskService {
                 .collect(Collectors.partitioningBy(AbstractTask::isDone));
     }
 
-	@Override
-	public TaskDTO updateTask(AbstractTask task, int id) {
+    @Override
+    public TaskDTO updateTask(AbstractTask task, int id) {
         Optional<AbstractTask> existedTask = this.taskRepository.findById(new TaskId(id));
-        if(!existedTask.isPresent()) {
-			log.warn("Tache non trouvee : {}", task.getId());
-			  throw new TaskNotFoundException(task.getId().id());
-			}
-			this.taskRepository.save(task);
-			log.info("Tache mise a jour : {}", task.getId());
-		return new TaskMapper().toDto(task);
-	}
+        if (!existedTask.isPresent()) {
+            log.warn("Tache non trouvee : {}", task.getId());
+            throw new TaskNotFoundException(task.getId().id());
+        }
+        this.taskRepository.save(task);
+        log.info("Tache mise a jour : {}", task.getId());
+        return new TaskMapper().toDto(task);
+    }
 }
