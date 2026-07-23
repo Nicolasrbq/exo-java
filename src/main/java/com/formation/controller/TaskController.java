@@ -5,10 +5,14 @@ import com.formation.dto.TaskMapper;
 import com.formation.model.AbstractTask;
 import com.formation.model.TaskId;
 import com.formation.service.TaskService;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 
+@RestController
+@RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;

@@ -34,7 +34,7 @@ public class TaskAnalyser {
     public static Optional<AbstractTask> findMostUrgent(List<AbstractTask> tasks) {
         Optional<AbstractTask> countTasks = tasks.stream()
                 .filter(task -> !task.isDone())
-                .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.priority == Priority.HIGH)
+                .filter(task -> task instanceof SimpleTask simpleTask && simpleTask.getPriority() == Priority.HIGH)
                 .max(Comparator.comparing(AbstractTask::getCreateAt));
 
         // utilise un logger à la place de System.out.println pour afficher les messages d'information
@@ -47,7 +47,7 @@ public class TaskAnalyser {
         return tasks.stream()
                 .filter(task -> task instanceof SimpleTask)
                 .map(task -> (SimpleTask) task)
-                .collect(Collectors.groupingBy(task -> task.priority, Collectors.counting()));
+                .collect(Collectors.groupingBy(task -> task.getPriority(), Collectors.counting()));
     }
 
     public static String buildReport(List<AbstractTask> tasks) {

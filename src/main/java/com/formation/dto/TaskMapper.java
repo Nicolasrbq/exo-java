@@ -10,7 +10,9 @@ import com.formation.model.Priority;
 import com.formation.model.RecurringTask;
 import com.formation.model.SimpleTask;
 import com.formation.model.TaskId;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TaskMapper {
 
     private static final Logger log = LoggerFactory.getLogger(TaskMapper.class);
@@ -27,7 +29,7 @@ public class TaskMapper {
                     task.getId().id(),
                     task.getTitle(),
                     "SIMPLE",
-                    simpleTask.priority.name(),
+                    simpleTask.getPriority().name(),
                     null,
                     task.isDone(),
                     task.getCreateAt().toString(),

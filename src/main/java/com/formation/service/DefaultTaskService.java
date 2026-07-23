@@ -11,12 +11,14 @@ import com.formation.model.TaskId;
 import com.formation.repository.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class DefaultTaskService implements TaskService {
 
     /**
@@ -28,7 +30,7 @@ public class DefaultTaskService implements TaskService {
     /**
      * problème d'encapsulation : le repository est public, n'importe qui peut le modifier. Il faut le rendre private
      */
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
     /**
      * Inversion de controle : la classe ne s'occupe pas de creer son repository, elle le recoit en parametre

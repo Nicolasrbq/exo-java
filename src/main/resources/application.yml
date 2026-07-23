@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: taskmanager-api
+  jackson:
+    # Sérialise LocalDate en '2024-01-15' (pas en tableau)
+    serialization.write-dates-as-timestamps: false
+
+logging:
+  level:
+    fr.formation.taskmanager: DEBUG
+    org.springframework.web: INFO
